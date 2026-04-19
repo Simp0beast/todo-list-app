@@ -58,15 +58,32 @@ https://abcd1234.ngrok.io
 
 По этому адресу приложение будет доступно из интернета.
 
-## CI/CD
+## CI (Continuous Integration)
 
-Pipeline выполняет:
+При каждом push в ветки develop и main запускается pipeline:
 
-Установку зависимостей
-Запуск тестов
-Сборку Docker-образа
-Публикацию в DockerHub
-Деплой в Kubernetes
+сборка Docker-образа
+тестирование приложения
+публикация Docker-образа в Docker Hub
+версионирование образов (по commit SHA и тегу latest)
+
+Пример имени образа:
+
+simpotiaga/todo-list-app:<commit-sha>
+simpotiaga/todo-list-app:latest
+
+## CD (Continuous Delivery)
+
+Деплой приложения выполняется локально, а не из CI, т.к. используется локальный Kubernetes-кластер (Minikube), который:
+
+работает на машине и недоступен из GitHub Actions.
+
+Как выполняется деплой
+
+После успешного pipeline необходимо вручную обновить приложение в Kubernetes:
+
+kubectl set image deployment/todo-list-app \
+todo-list-app=simpotiaga/todo-list-app:<commit-sha>
 
 ## Версионирование
 
