@@ -8,22 +8,41 @@ Docker
 Kubernetes (Minikube)
 GitHub Actions
 Prometheus + Grafana
+Vagrant
 ```
 ## Структура проекта
 ```
 .
 ├── k8s/
-│   ├── deployment.yaml
-│   ├ service.yaml
-│   ── ingress.yaml
-│   └── monitoring.yaml
+│ ├── deployment.yaml
+│ ├── service.yaml
+│ ├── ingress.yaml
+│ ├── monitoring.yaml
+│ ├── grafana-dashboard.yaml
+│ ├── auto-deploy.yaml
 ├── .github/workflows/
-│   └── ci-cd.yaml
-├─Dockerfile
+│ ├── ci-cd.yaml
+├── Vagrantfile
+├── Dockerfile
 ├── src/
 └── README.md
 ```
-## Развертывание инфраструктуры
+## Инфраструктура (IaC)
+
+Инфраструктура описана как код с использованием Vagrant.
+
+Развёртывание:
+```
+vagrant up
+```
+Внутри VM автоматически:
+```
+устанавливается Docker
+устанавливается kubectl
+устанавливается Minikube
+поднимается Kubernetes кластер
+```
+## Развертывание инфраструктуры без Vagrant
 ```
 minikube start
 minikube addons enable ingress
@@ -75,12 +94,11 @@ simpotiaga/todo-list-app:latest
 ```
 ## CD (Continuous Delivery)
 
-Деплой приложения выполняется локально, а не из CI, т.к. используется локальный Kubernetes-кластер (Minikube), который работает на машине и недоступен из GitHub Actions.
-
-После успешного pipeline необходимо вручную обновить приложение в Kubernetes:
+В кластере реализован механизм автоматического обновления приложения.
+Реализован через Kubernetes CronJob:
 ```
-kubectl set image deployment/todo-list-app \
-todo-list-app=simpotiaga/todo-list-app:<commit-sha>
+каждые 2 минуты проверяется новый образ
+Deployment обновляется автоматически
 ```
 ## Версионирование
 
@@ -106,6 +124,11 @@ kubectl apply -f k8s/monitoring.yaml
 ```
 minikube service -n monitoring grafana
 ```
+## Дашборд
+
+В Grafana настроен пользовательский dashboard для мониторинга приложения.
+Отображаются метрики CPU и памяти контейнеров.
+
 ##  Git Flow
 
 1. main — production
@@ -116,6 +139,7 @@ minikube service -n monitoring grafana
 
 1. Разработка → feature branch
 2. Merge в develop
-3. Тестирование
+3. CI
 4. Merge в main
-5. Деплой
+5. CD
+
