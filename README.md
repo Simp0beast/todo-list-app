@@ -1,6 +1,6 @@
 # Todo List App
 
-Проект реализует полный CI/CD pipeline для приложения todo-list-app с деплоем в Kubernetes.
+Проект реализует полный CI/CD pipeline для приложения todo-list-app.
 
 ## Используемые технологии:
 ```
